@@ -18,8 +18,11 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
+        'auth_method',
+        'role',
+        'hidden_profile',
         'password',
     ];
 
@@ -44,5 +47,32 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function usageLogs()
+    {
+        return $this->hasMany(UsageLog::class);
+    }
+
+    public function timer()
+    {
+        return $this->hasOne(Timer::class);
+    }
+
+    public function communities()
+    {
+        // withTimestamps() priekš starp tabulas "community_user",
+        // lai Laravel automātiski menedžētu tabulas piepildīšanu
+        return $this->belongsToMany(Community::class)->withTimestamps();
     }
 }
