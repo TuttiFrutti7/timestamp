@@ -9,6 +9,14 @@ class MediaFile extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'post_id',
+        'type',
+        'mime_type',
+        'path',
+    ];
+
+
     public function post()
     {
         return $this->belongsTo(Post::class);
