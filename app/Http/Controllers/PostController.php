@@ -3,16 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\User;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        // ŠIS IR TIKAI LAI TESTĒTU BEZ AUTENTIFIKĀCIJAS!
+        if (!Auth::check()) {
+            Auth::login(User::where('email', 'admin@example.com')->first());
+        }
+    }
+
     // Izvadīt visus Postus
     public function index()
-    {
-        $posts = Post::latest()->get(); // TODO: (VARBŪT) Implementē postu izvedi vairākās lapās
+    {   
+        // TODO: (VARBŪT) Implementē postu izvedi vairākās lapās
+        // VAI ARĪ, ka tikai daļa tiek ielādēta un tinot uz leju tiek papildināta lapa
+        $posts = Post::latest()->get(); 
         return view('posts.index', compact('posts'));
     }
 
@@ -26,9 +37,11 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'content' => 'required|string|max:1000',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
             'community_id' => 'nullable|exists:communities,id',
-            'files.*' => 'file|max:20480' // atļauj vairākus failus
+            'visibility' => 'required|in:public,community,private',
+            'files.*' => 'file|max:20480|mimetypes:image/jpeg,image/png,image/webp,video/mp4,audio/mpeg,audio/wav',
         ]);
 
         $post = new Post($validated);
@@ -67,27 +80,41 @@ class PostController extends Controller
     // Izvada formu rediģēt postu
     public function edit(Post $post)
     {
-        $this->authorize('update', $post);  // Optional: policy
+        //$this->authorize('update', $post);  // Optional: policy
         return view('posts.edit', compact('post'));
     }
 
     // Atjaunina konkrētu postu
     public function update(Request $request, Post $post)
     {
-        $this->authorize('update', $post);  // Optional: policy
-
+        //$this->authorize('update', $post);  // Optional: policy
+    
         $validated = $request->validate([
-            'content' => 'required|string|max:1000',
+            'title' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'visibility' => 'required|in:public,community,private',
+            'files.*' => 'file|max:20480|mimetypes:image/jpeg,image/png,image/webp,video/mp4,audio/mpeg,audio/wav',
+            'remove_files' => 'array',
+            'remove_files.*' => 'integer|exists:media_files,id',
         ]);
 
         $post->update($validated);
+
+        if ($request->filled('remove_files')) {
+            $post->deleteMediaFiles($request->remove_files);
+        }
+
+        if ($request->hasFile('files')) {
+            $post->addMediaFiles($request->file('files'));
+        }
+
         return redirect()->route('posts.show', $post)->with('success', 'Post updated!');
     }
 
     // Izdzēš konkrētu postu
     public function destroy(Post $post)
     {
-        $this->authorize('delete', $post);  // Optional: policy
+        //$this->authorize('delete', $post);  // Optional: policy
 
         $post->delete();
         return redirect()->route('posts.index')->with('success', 'Post deleted!');

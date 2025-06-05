@@ -1,15 +1,13 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use app\Http\Controllers\PostController;
-use app\Http\Controllers\MediaController;
+use App\Http\Controllers\PostController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [PostController::class, 'index'])->name('home');
 
-Route::middleware(['auth', 'timer.active'])->group(function () {
-    Route::resource('posts', PostController::class);
-});
+/*Route::middleware(['auth', 'timer.active'])->group(function () {
+    Route::resource('posts', PostController::class)->except(['index']);
+});*/
 
-Route::resource('posts', PostController::class);
+Route::resource('posts', PostController::class);//->auth(['index']);
+Route::redirect('/posts', '/');

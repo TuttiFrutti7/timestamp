@@ -1,6 +1,7 @@
 <div class="post">
-    <p>{{ $post->content }}</p>
-    <small>Autors: {{ $post->user->name ?? 'Nezināms' }}</small>
+    <h3>{{ $post->title }}</h3>
+    <p>{{ $post->description }}</p>
+    <small>Autors: {{ $post->user->username ?? 'Nezināms' }}</small>
 
     @foreach ($post->mediaFiles as $media)
         @if ($media->type === 'picture')
@@ -17,4 +18,4 @@
     @endforeach
 
     <a href="{{ route('posts.show', $post) }}">Skatīt</a>
-@endforeach
+</div>
