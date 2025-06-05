@@ -20,11 +20,15 @@
     @endforeach
 
     <div>
-        <a href="{{ route('posts.edit', $post) }}">Rediģēt</a> |
-        <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit" onclick="return confirm('Tiešām dzēst?')">Dzēst</button>
-        </form>
+        @can('update', $post)
+            <a href="{{ route('posts.edit', $post) }}">Rediģēt</a>
+        @endcan
+        @can('delete', $post)
+            <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" onclick="return confirm('Tiešām dzēst?')">Dzēst</button>
+            </form>
+        @endcan
     </div>
 @endsection

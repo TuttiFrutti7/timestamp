@@ -7,17 +7,11 @@ use App\Models\User;
 use App\Models\MediaFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class PostController extends Controller
 {
-    public function __construct()
-    {
-        // ŠIS IR TIKAI LAI TESTĒTU BEZ AUTENTIFIKĀCIJAS!
-        if (!Auth::check()) {
-            Auth::login(User::where('email', 'admin@example.com')->first());
-        }
-    }
-
+    use AuthorizesRequests;
     // Izvadīt visus Postus
     public function index()
     {   
@@ -80,14 +74,14 @@ class PostController extends Controller
     // Izvada formu rediģēt postu
     public function edit(Post $post)
     {
-        //$this->authorize('update', $post);  // Optional: policy
+        $this->authorize('update', $post);  // Optional: policy
         return view('posts.edit', compact('post'));
     }
 
     // Atjaunina konkrētu postu
     public function update(Request $request, Post $post)
     {
-        //$this->authorize('update', $post);  // Optional: policy
+        $this->authorize('update', $post);  //policy
     
         $validated = $request->validate([
             'title' => 'required|string|max:255',
@@ -114,7 +108,7 @@ class PostController extends Controller
     // Izdzēš konkrētu postu
     public function destroy(Post $post)
     {
-        //$this->authorize('delete', $post);  // Optional: policy
+        $this->authorize('delete', $post); //policy
 
         $post->delete();
         return redirect()->route('posts.index')->with('success', 'Post deleted!');
