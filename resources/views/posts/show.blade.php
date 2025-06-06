@@ -31,4 +31,20 @@
             </form>
         @endcan
     </div>
+
+    <div>
+        <h2 class="text-xl font-bold mb-4">Comments</h2>
+
+        @auth
+        <form method="POST" action="{{ route('comments.store', $post) }}">
+            @csrf
+            <textarea name="content" class="w-full border rounded p-2 mb-2" placeholder="Leave a comment..."></textarea>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Post</button>
+        </form>
+        @endauth
+
+        @foreach ($post->comments as $comment)
+            <x-comment :comment="$comment" />
+        @endforeach
+    </div>
 @endsection
