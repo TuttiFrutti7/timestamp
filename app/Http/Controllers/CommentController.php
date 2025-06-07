@@ -43,6 +43,13 @@ class CommentController extends Controller
 
         $post->comments()->save($comment);
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'html' => view('partials.comment', ['comment' => $comment])->render()
+            ]);
+        }
+
+
         return redirect()->route('posts.show', $post)->with('success', 'Comment added!');
     }
 
@@ -76,14 +83,42 @@ class CommentController extends Controller
 
         $comment->update($validated);
 
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Comment updated!']);
+        }
+
         return redirect()->route('posts.show', $comment->post_id)->with('success', 'Comment updated!');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Comment $comment, Request $request)
     {
-        //
+        $this->authorize('delete', $comment);
+
+        $comment->delete();
+
+        if ($request->expectsJson()) {
+            return response()->json(['status' => 'success', 'message' => 'Comment deleted']);
+        }
+
+        return redirect()->back()->with('success', 'Comment deleted!');
     }
+
+    // To make only 10 comments load untill presses the button 
+    public function comments(Post $post, Request $request)
+    {
+        $comments = $post->comments()->latest()->paginate(10);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'html' => view('partials.comments', ['comments' => $comments])->render(),
+                'nextPage' => $comments->nextPageUrl()
+            ]);
+        }
+
+        return redirect()->route('posts.show', $post);
+    }
+
 }
