@@ -16,6 +16,30 @@
                 <a href="{{ route('posts.community') }}" class="text-white hover:text-yellow-300">Community Posts</a>
                 <a href="{{ route('search') }}" class="text-white hover:text-yellow-300">Search</a>
                 <a href="{{ route('profile.edit') }}" class="text-white hover:text-yellow-300">Profile</a>
+                @auth
+                    @php
+                        $user = auth()->user();
+                        $remaining = null;
+                        if ($user && $user->timer) {
+                            $today = now()->startOfDay();
+                            $logs = $user->usageLogs()->where('login_time', '>=', $today)->get();
+                            $total = 0;
+                            foreach ($logs as $log) {
+                                if ($log->logout_time) {
+                                    $total += $log->login_time->diffInSeconds($log->logout_time) / 60;
+                                } else {
+                                    $total += $log->login_time->diffInSeconds(now()) / 60;
+                                }
+                            }
+                            $remaining = max(0, $user->timer->limit - $total);
+                        }
+                    @endphp
+                    @if(!is_null($remaining))
+                        <span class="text-yellow-300 font-bold ml-4">
+                            Time left today: {{ floor($remaining) }} min
+                        </span>
+                    @endif
+                @endauth
             </div>
             <div class="flex items-center space-x-4 ml-auto">
                 @auth
@@ -95,6 +119,27 @@
                     });
                 }
             }))
+        });
+        // komentāru izvade sekundēs kad paliek mazāk par 60 sekundēm
+        document.addEventListener('DOMContentLoaded', function () {
+            const timerElem = document.getElementById('timer-remaining');
+            if (!timerElem) return;
+            let seconds = parseInt(timerElem.dataset.seconds);
+
+            function updateTimer() {
+                if (seconds <= 0) {
+                    timerElem.textContent = "Time left today: 0 sec";
+                    return;
+                }
+                if (seconds > 60) {
+                    timerElem.textContent = "Time left today: " + Math.floor(seconds / 60) + " min";
+                } else {
+                    timerElem.textContent = "Time left today: " + seconds + " sec";
+                }
+                seconds--;
+                setTimeout(updateTimer, 1000);
+            }
+            updateTimer();
         });
     </script>
 </body>

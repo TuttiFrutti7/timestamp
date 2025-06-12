@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
+use App\Models\UsageLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -46,6 +47,20 @@ class RegisteredUserController extends Controller
         event(new Registered($user));
 
         Auth::login($user);
+
+        // Izveido UsageLog ierakstu
+        $today = now()->startOfDay();
+        $existingLog = UsageLog::where('user_id', $user->id)
+            ->where('login_time', '>=', $today)
+            ->whereNull('logout_time')
+            ->first();
+
+        if (!$existingLog) {
+            UsageLog::create([
+                'user_id' => $user->id,
+                'login_time' => now(),
+            ]);
+        }
 
         return redirect(route('dashboard', absolute: false));
     }
