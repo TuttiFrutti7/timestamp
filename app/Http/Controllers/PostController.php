@@ -13,11 +13,23 @@ class PostController extends Controller
 {
     use AuthorizesRequests;
     // Izvadīt visus Postus
-    public function index()
+    public function index(Request $request)
     {   
         // TODO: (VARBŪT) Implementē postu izvedi vairākās lapās
         // VAI ARĪ, ka tikai daļa tiek ielādēta un tinot uz leju tiek papildināta lapa
-        $posts = Post::latest()->get(); 
+        //$posts = Post::latest()->get(); 
+        //return view('posts.index', compact('posts'));
+
+        //$posts = Post::with('mediaFiles')->latest()->paginate(10);
+        $posts = Post::with(['mediaFiles', 'user'])->latest()->paginate(10);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'html' => view('partials.posts', ['posts' => $posts])->render(),
+                'nextPage' => $posts->nextPageUrl()
+            ]);
+        }
+
         return view('posts.index', compact('posts'));
     }
 
