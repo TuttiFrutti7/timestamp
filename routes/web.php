@@ -6,9 +6,12 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TimerController;
+use Illuminate\Support\Facades\Auth;
 
 // Auth routes (login, register, password reset, etc.)
 require __DIR__.'/auth.php';
+Route::get('auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
+Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
 
 // Timer management routes (accessible to authenticated users even if locked out)
 Route::middleware('auth')->group(function () {
@@ -47,9 +50,8 @@ Route::middleware(['auth', 'timer.active'])->group(function () {
     Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 });
 
-// Public homepage just redirects to login if not authenticated
 Route::get('/', function () {
-    return auth()->check()
+    return Auth::check()
         ? redirect()->route('posts.index')
         : redirect()->route('login');
 });
