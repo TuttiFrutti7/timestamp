@@ -11,7 +11,25 @@
         <div>
             <h2 class="text-xl font-semibold mb-2">Users</h2>
             @forelse($users as $user)
-                <div class="p-2 border-b">{{ $user->username }}</div>
+                <div class="flex items-center justify-between p-2 border-b">
+                    <span>{{ $user->username }}</span>
+                    @auth
+                        @if(auth()->user()->id !== $user->id)
+                            @if(auth()->user()->following->contains($user->id))
+                                <form action="{{ route('users.unfollow', $user) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-red-500">Unfollow</button>
+                                </form>
+                            @else
+                                <form action="{{ route('users.follow', $user) }}" method="POST">
+                                    @csrf
+                                    <button class="text-blue-500">Follow</button>
+                                </form>
+                            @endif
+                        @endif
+                    @endauth
+                </div>
             @empty
                 <div class="text-gray-500">No users found.</div>
             @endforelse

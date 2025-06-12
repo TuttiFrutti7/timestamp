@@ -48,6 +48,8 @@ Route::middleware(['auth', 'timer.active'])->group(function () {
     Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
     Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
     Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
+    Route::post('/users/{user}/follow', [App\Http\Controllers\FollowController::class, 'follow'])->middleware('auth')->name('users.follow');
+    Route::delete('/users/{user}/unfollow', [App\Http\Controllers\FollowController::class, 'unfollow'])->middleware('auth')->name('users.unfollow');
 });
 
 Route::get('/', function () {
