@@ -38,11 +38,13 @@ Route::middleware(['auth', 'timer.active'])->group(function () {
     Route::resource('communities', CommunityController::class);
 
     // Komentāri
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    /*Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');*/
     Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
+    Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 });
 
 // Public homepage just redirects to login if not authenticated

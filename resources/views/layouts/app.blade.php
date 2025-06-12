@@ -4,40 +4,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Timestamp</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
+    @vite('resources/css/app.css')
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
-<body>
+<body class="bg-gray-100 min-h-screen">
     <header>
-        <nav>
-            <a href="{{ route('posts.index') }}">Posts</a>
-            <a href="{{ route('posts.create') }}">Create</a>
+        <nav class="bg-gray-800 p-4 flex items-center">
+            <div class="flex items-center space-x-8">
+                <a href="{{ route('dashboard') }}" class="text-white hover:text-yellow-300">Dashboard</a>
+                <a href="{{ route('posts.index') }}" class="text-white hover:text-yellow-300">All Posts</a>
+                <a href="{{ route('posts.community') }}" class="text-white hover:text-yellow-300">Community Posts</a>
+                <a href="{{ route('search') }}" class="text-white hover:text-yellow-300">Search</a>
+                <a href="{{ route('profile.edit') }}" class="text-white hover:text-yellow-300">Profile</a>
+            </div>
+            <div class="flex items-center space-x-4 ml-auto">
+                @auth
+                    <span class="text-gray-300">
+    Logged in as
+    <span class="font-bold text-yellow-300">{{ auth()->user()->username }}</span>
+</span>
+                    <a href="{{ route('logout') }}"
+                       onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
+                       class="text-red-400 hover:text-red-600">Logout</a>
+                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                        @csrf
+                    </form>
+                @endauth
+                @guest
+                    <a href="{{ route('login') }}" class="text-white hover:text-yellow-300">Login</a>
+                    <a href="{{ route('register') }}" class="text-white hover:text-yellow-300">Register</a>
+                @endguest
+            </div>
         </nav>
     </header>
 
-    <main>
+    <main class="container mx-auto mt-8 p-4 bg-white rounded shadow">
         @yield('content')
     </main>
 
-    <footer>
+    <footer class="text-center p-4 bg-gray-200 text-gray-600 mt-8">
         <p>© 2025 Timestamp</p>
     </footer>
-    <!-- huh? -->
-    @guest
-        <a href="{{ route('login') }}">Login</a>
-        <a href="{{ route('register') }}">Register</a>
-    @endguest
-
-    @auth
-        <a href="{{ route('logout') }}"
-        onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-            Logout
-        </a>
-
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-            @csrf
-        </form>
-    @endauth
 
     <script>
         document.addEventListener('alpine:init', () => {
@@ -91,3 +98,4 @@
         });
     </script>
 </body>
+</html>
