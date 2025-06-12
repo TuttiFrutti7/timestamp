@@ -50,7 +50,6 @@ Route::middleware('auth')->group(function () {
 // ielādē daļu komentārus route???
 //Route::get('/posts/{post}/comments', [CommentController::class, 'comments']);
 Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
-
-
+Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
 require __DIR__.'/auth.php';

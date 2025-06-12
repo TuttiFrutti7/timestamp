@@ -1,3 +1,6 @@
+@extends('layouts.app')
+
+@section('content')
 <form action="{{ route('communities.search') }}" method="GET">
     <input type="text" name="q" placeholder="Search communities..." value="{{ request('q') }}">
     <button type="submit">Search</button>
@@ -25,3 +28,4 @@
     </div>
 @endforeach
 </ul>
+@endsection
