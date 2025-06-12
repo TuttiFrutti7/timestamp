@@ -11,7 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+        'timer.active' => \App\Http\Middleware\CheckTimerActive::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

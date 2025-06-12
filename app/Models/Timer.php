@@ -9,6 +9,12 @@ class Timer extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'user_id',
+        'limit',
+        'set_at',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
