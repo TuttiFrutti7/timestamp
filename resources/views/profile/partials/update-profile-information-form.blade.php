@@ -72,6 +72,21 @@
             </div>
         </div>
 
+        <div class="flex gap-8 mb-6">
+            <button type="button" 
+                class="text-blue-600 hover:underline focus:outline-none"
+                x-data
+                @click="$dispatch('show-followers')">
+                <span class="font-bold">{{ $user->followers()->count() }}</span> Followers
+            </button>
+            <button type="button" 
+                class="text-blue-600 hover:underline focus:outline-none"
+                x-data
+                @click="$dispatch('show-following')">
+                <span class="font-bold">{{ $user->following()->count() }}</span> Following
+            </button>
+        </div>
+
         <div class="flex items-center gap-4 mt-6">
             <x-primary-button>{{ __('Save') }}</x-primary-button>
 
@@ -87,3 +102,57 @@
         </div>
     </form>
 </section>
+
+<!-- Followers Popup -->
+<div 
+    x-data="{ open: false }"
+    x-on:show-followers.window="open = true"
+    x-on:keydown.escape.window="open = false"
+    x-show="open"
+    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+    style="display: none;"
+>
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-h-[70vh] overflow-y-auto">
+        <h3 class="text-lg font-bold mb-4">Followers</h3>
+        <ul>
+            @forelse($user->followers as $follower)
+                <li class="mb-2 flex items-center gap-2">
+                    @if($follower->profile_image)
+                        <img src="{{ asset('storage/' . $follower->profile_image) }}" class="w-6 h-6 rounded-full object-cover">
+                    @endif
+                    <span>{{ $follower->username }}</span>
+                </li>
+            @empty
+                <li class="text-gray-500">No followers yet.</li>
+            @endforelse
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-gray-200 rounded" @click="open = false">Close</button>
+    </div>
+</div>
+
+<!-- Following Popup -->
+<div 
+    x-data="{ open: false }"
+    x-on:show-following.window="open = true"
+    x-on:keydown.escape.window="open = false"
+    x-show="open"
+    class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50"
+    style="display: none;"
+>
+    <div class="bg-white rounded-lg shadow-lg p-6 w-80 max-h-[70vh] overflow-y-auto">
+        <h3 class="text-lg font-bold mb-4">Following</h3>
+        <ul>
+            @forelse($user->following as $followed)
+                <li class="mb-2 flex items-center gap-2">
+                    @if($followed->profile_image)
+                        <img src="{{ asset('storage/' . $followed->profile_image) }}" class="w-6 h-6 rounded-full object-cover">
+                    @endif
+                    <span>{{ $followed->username }}</span>
+                </li>
+            @empty
+                <li class="text-gray-500">Not following anyone yet.</li>
+            @endforelse
+        </ul>
+        <button class="mt-4 px-4 py-2 bg-gray-200 rounded" @click="open = false">Close</button>
+    </div>
+</div>
