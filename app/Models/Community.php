@@ -9,6 +9,13 @@ class Community extends Model
 {
     use HasFactory;
 
+    protected $fillable = [
+        'name',
+        'description',
+        'type',
+        'owner_id',
+    ];
+
     public function posts()
     {
         return $this->hasMany(Post::class);
@@ -19,5 +26,10 @@ class Community extends Model
         // withTimestamps() priekš starp tabulas "community_user",
         // lai Laravel automātiski menedžētu tabulas piepildīšanu
         return $this->belongsToMany(User::class)->withTimestamps();
+    }
+    
+    public function owner()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'owner_id');
     }
 }
