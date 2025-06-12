@@ -19,10 +19,23 @@ class PostPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Post $post): bool
+    public function view(?\App\Models\User $user, \App\Models\Post $post)
     {
+        if ($post->visibility === 'public') {
+            return true;
+        }
+
+        if ($post->visibility === 'community') {
+            return $user !== null;
+        }
+
+        if ($post->visibility === 'private') {
+            return $user && $user->id === $post->user_id;
+        }
+
         return false;
     }
+
 
     /**
      * Determine whether the user can create models.

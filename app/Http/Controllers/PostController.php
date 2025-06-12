@@ -80,11 +80,7 @@ class PostController extends Controller
     // Izvada konkrētu postu
     public function show(Post $post)
     {
-        /* 10 posti tikai */
-        //$post->load('mediaFiles');
-
-        // Only 10 comments initially
-        //$post->setRelation('comments', $post->comments()->latest()->take(10)->get());
+        $this->authorize('view', $post); // This checks the PostPolicy's 'view' method
 
         return view('posts.show', compact('post'));
     }
@@ -95,6 +91,23 @@ class PostController extends Controller
         $this->authorize('update', $post);  // Optional: policy
         return view('posts.edit', compact('post'));
     }
+    // Izvada visus postus ar 'public' redzamību
+    public function community(Request $request)
+    {
+        $user = $request->user();
+
+        // Get IDs of communities the user has joined
+        $communityIds = $user->communities()->pluck('communities.id');
+
+        // Get posts from those communities with 'community' visibility
+        $posts = Post::where('visibility', 'community')
+            ->whereIn('community_id', $communityIds)
+            ->latest()
+            ->get();
+
+        return view('posts.community', compact('posts'));
+    }
+
 
     // Atjaunina konkrētu postu
     public function update(Request $request, Post $post)
