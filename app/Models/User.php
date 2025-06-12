@@ -75,4 +75,25 @@ class User extends Authenticatable
         // lai Laravel automātiski menedžētu tabulas piepildīšanu
         return $this->belongsToMany(Community::class)->withTimestamps();
     }
+
+    // Check if timer can be changed (7-day lock)
+    public function canChangeTimer()
+    {
+        $timer = $this->timer;
+        if (!$timer) return true;
+        return now()->diffInDays($timer->set_at) >= 7;
+    }
+
+    // Check if user is within daily limit
+    /*public function isWithinDailyLimit()
+    {
+        $today = now()->startOfDay();
+        $logs = $this->usageLogs()->where('login_time', '>=', $today)->get();
+        $total = 0;
+        foreach ($logs as $log) {
+            $logout = $log->logout_time ?? now();
+            $total += $logout->diffInSeconds($log->login_time) / 60;
+        }
+        return $this->timer && $total < $this->timer->limit;
+    }*/
 }

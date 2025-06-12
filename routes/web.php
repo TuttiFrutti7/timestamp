@@ -5,51 +5,51 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\TimerController;
 
-// TODO: Fix dashbord thingy and clean up this file
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// Auth routes (login, register, password reset, etc.)
+require __DIR__.'/auth.php';
 
+// Timer management routes (accessible to authenticated users even if locked out)
 Route::middleware('auth')->group(function () {
+    Route::get('/timer/set', [TimerController::class, 'showSetForm'])->name('timer.set.view');
+    Route::post('/timer/set', [TimerController::class, 'set'])->name('timer.set');
+    Route::get('/timer/expired', [TimerController::class, 'expired'])->name('timer.expired');
+});
+
+// All other routes: must be authenticated AND within timer limit
+Route::middleware(['auth', 'timer.active'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->middleware(['verified'])->name('dashboard');
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::get('/community', [PostController::class, 'community'])->name('posts.community');
     Route::get('/communities/create', [CommunityController::class, 'create'])->name('communities.create');
     Route::post('/communities', [CommunityController::class, 'store'])->name('communities.store');
     Route::get('/communities/search', [CommunityController::class, 'search'])->name('communities.search');
     Route::post('/communities/{community}/join', [CommunityController::class, 'join'])->name('communities.join');
     Route::post('/communities/{community}/leave', [CommunityController::class, 'leave'])->name('communities.leave');
-});
 
-
-//Route::resource('posts', PostController::class);//->auth(['index']);
-Route::get('/posts', [PostController::class, 'index'])->name('posts.index');
-
-
-Route::get('/', function () {
-    return redirect()->route('posts.index');
-});
-/*Route::middleware(['auth', 'timer.active'])->group(function () {
-    Route::resource('posts', PostController::class)->except(['index']);
-});*/
-Route::middleware(['auth'])->group(function () {
     Route::resource('posts', PostController::class);
     Route::resource('communities', CommunityController::class);
-});
 
-
-// Komentāri
-Route::middleware('auth')->group(function () {
-    Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
+    // Komentāri
+    /*Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
     Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');*/
+    Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
+    Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 });
-// ielādē daļu komentārus route???
-//Route::get('/posts/{post}/comments', [CommentController::class, 'comments']);
-Route::get('/posts/{post}/comments', [CommentController::class, 'comments'])->name('posts.comments');
-Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');
 
-require __DIR__.'/auth.php';
+// Public homepage just redirects to login if not authenticated
+Route::get('/', function () {
+    return auth()->check()
+        ? redirect()->route('posts.index')
+        : redirect()->route('login');
+});
