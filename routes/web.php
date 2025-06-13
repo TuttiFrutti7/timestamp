@@ -8,19 +8,16 @@ use App\Http\Controllers\CommentController;
 use App\Http\Controllers\TimerController;
 use Illuminate\Support\Facades\Auth;
 
-// Auth routes (login, register, password reset, etc.)
 require __DIR__.'/auth.php';
 Route::get('auth/google', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleGoogleCallback']);
 
-// Timer management routes (accessible to authenticated users even if locked out)
 Route::middleware('auth')->group(function () {
     Route::get('/timer/set', [TimerController::class, 'showSetForm'])->name('timer.set.view');
     Route::post('/timer/set', [TimerController::class, 'set'])->name('timer.set');
     Route::get('/timer/expired', [TimerController::class, 'expired'])->name('timer.expired');
 });
 
-// All other routes: must be authenticated AND within timer limit
 Route::middleware(['auth', 'timer.active'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -40,7 +37,6 @@ Route::middleware(['auth', 'timer.active'])->group(function () {
     Route::resource('posts', PostController::class);
     Route::resource('communities', CommunityController::class);
 
-    // Komentāri
     Route::post('/posts/{post}/comments', [CommentController::class, 'store'])->name('comments.store');
     Route::get('/comments/{comment}/edit', [CommentController::class, 'edit'])->name('comments.edit');
     Route::put('/comments/{comment}', [CommentController::class, 'update'])->name('comments.update');
@@ -58,3 +54,12 @@ Route::get('/', function () {
         ? redirect()->route('posts.index')
         : redirect()->route('login');
 });
+
+Route::post('/set-locale', function (\Illuminate\Http\Request $request) {
+    $locale = $request->input('locale');
+    if (in_array($locale, ['en', 'lv'])) {
+        session(['locale' => $locale]);
+        app()->setLocale($locale);
+    }
+    return back();
+})->middleware('web')->name('set-locale');

@@ -26,7 +26,8 @@ class PostPolicy
         }
 
         if ($post->visibility === 'community') {
-            return $user !== null;
+            //return $user !== null;
+            return $user && $user->id === $post->user_id;
         }
 
         if ($post->visibility === 'private') {
@@ -58,6 +59,12 @@ class PostPolicy
      */
     public function delete(User $user, Post $post): bool
     {
+        if ($user->isAdmin()) {
+            return true;
+        }
+        if ($user->isCommunityAdmin($post->community)) {
+            return true;
+        }
         return $user->id === $post->user_id;
     }
 

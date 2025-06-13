@@ -19,6 +19,13 @@
                 <button type="submit">Join Community</button>
             </form>
         @endif
+        @can('delete', $community)
+            <form method="POST" action="{{ route('communities.destroy', $community) }}">
+                @csrf
+                @method('DELETE')
+                <button type="submit">Delete Community</button>
+            </form>
+        @endcan
     @endauth
 
     {{-- Add more details or actions as needed --}}

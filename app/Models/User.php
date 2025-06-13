@@ -84,19 +84,6 @@ class User extends Authenticatable
         return now()->diffInDays($timer->set_at) >= 7;
     }
 
-    // Check if user is within daily limit
-    /*public function isWithinDailyLimit()
-    {
-        $today = now()->startOfDay();
-        $logs = $this->usageLogs()->where('login_time', '>=', $today)->get();
-        $total = 0;
-        foreach ($logs as $log) {
-            $logout = $log->logout_time ?? now();
-            $total += $logout->diffInSeconds($log->login_time) / 60;
-        }
-        return $this->timer && $total < $this->timer->limit;
-    }*/
-
     public function following()
     {
         return $this->belongsToMany(User::class, 'follows', 'user_id', 'followed_user_id');
@@ -105,5 +92,16 @@ class User extends Authenticatable
     public function followers()
     {
         return $this->belongsToMany(User::class, 'follows', 'followed_user_id', 'user_id');
+    }
+
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isCommunityAdmin($community)
+    {
+        //return $community->owner_id === $this->id;
+        return $community && $community->owner_id === $this->id;
     }
 }

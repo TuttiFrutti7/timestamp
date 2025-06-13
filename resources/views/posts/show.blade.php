@@ -1,7 +1,16 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Posta Skats</h1>
+    <h1>{{ __('messages.post_view') }}</h1>
+
+    @if($post->community)
+        <p>
+            {{ __('messages.community') }}:
+            <a href="{{ route('communities.show', $post->community) }}">
+                {{ $post->community->name }}
+            </a>
+        </p>
+    @endif
 
     <p>{{ $post->content }}</p>
 
@@ -25,10 +34,10 @@
             <a href="{{ route('posts.edit', $post) }}">Rediģēt</a>
         @endcan
         @can('delete', $post)
-            <form action="{{ route('posts.destroy', $post) }}" method="POST" style="display:inline;">
+            <form method="POST" action="{{ route('posts.destroy', $post) }}">
                 @csrf
                 @method('DELETE')
-                <button type="submit" onclick="return confirm('Tiešām dzēst?')">Dzēst</button>
+                <button type="submit">Delete</button>
             </form>
         @endcan
     </div>

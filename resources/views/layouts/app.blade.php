@@ -11,6 +11,13 @@
     <header>
         <nav class="bg-gray-800 p-4 flex items-center">
             <div class="flex items-center space-x-8">
+                <form action="{{ route('set-locale') }}" method="POST" class="inline">
+                    @csrf
+                    <select name="locale" onchange="this.form.submit()">
+                        <option value="en" {{ app()->getLocale() == 'en' ? 'selected' : '' }}>EN</option>
+                        <option value="lv" {{ app()->getLocale() == 'lv' ? 'selected' : '' }}>LV</option>
+                    </select>
+                </form>
                 <a href="{{ route('dashboard') }}" class="text-white hover:text-yellow-300">Dashboard</a>
                 <a href="{{ route('posts.index') }}" class="text-white hover:text-yellow-300">All Posts</a>
                 <a href="{{ route('posts.community') }}" class="text-white hover:text-yellow-300">Community Posts</a>
@@ -33,10 +40,12 @@
                             }
                             $remaining = max(0, $user->timer->limit - $total);
                         }
+                        $remainingSeconds = isset($remaining) ? round($remaining * 60) : 0;
                     @endphp
                     @if(!is_null($remaining))
-                        <span class="text-yellow-300 font-bold ml-4">
-                            Time left today: {{ floor($remaining) }} min
+                        <span class="text-yellow-300 font-bold ml-4" id="timer-remaining"
+                            data-seconds="{{ $remainingSeconds }}">
+                            Time left today: {{ $remaining > 1 ? floor($remaining) . ' min' : ($remainingSeconds . ' sec') }}
                         </span>
                     @endif
                 @endauth
@@ -120,7 +129,7 @@
                 }
             }))
         });
-        // komentāru izvade sekundēs kad paliek mazāk par 60 sekundēm
+        // komentāru izvadi sekundēs kad laiks <60s palicis
         document.addEventListener('DOMContentLoaded', function () {
             const timerElem = document.getElementById('timer-remaining');
             if (!timerElem) return;

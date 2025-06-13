@@ -27,16 +27,25 @@
         </div>
 
         <div>
-            <label for="visibility" class="block font-semibold mb-1">Redzamība</label>
-            <select name="visibility" id="visibility" required
-                    class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-300">
-                <option value="public" {{ old('visibility') == 'public' ? 'selected' : '' }}>Publisks</option>
-                <option value="community" {{ old('visibility') == 'community' ? 'selected' : '' }}>Kopiena</option>
-                <option value="private" {{ old('visibility') == 'private' ? 'selected' : '' }}>Privāts</option>
+            <label for="visibility">Visibility:</label>
+            <select name="visibility" id="visibility" class="form-select">
+                <option value="public">Public</option>
+                <option value="private">Private</option>
+                <option value="community" {{ old('community_id') ? '' : 'disabled' }}>Community</option>
             </select>
             @error('visibility')
                 <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
             @enderror
+        </div>
+
+        <div>
+            <label for="community_id">Community (optional):</label>
+            <select name="community_id" id="community_id" class="form-select">
+                <option value="">No community (public/private post)</option>
+                @foreach($userCommunities as $community)
+                    <option value="{{ $community->id }}">{{ $community->name }}</option>
+                @endforeach
+            </select>
         </div>
 
         <div>
