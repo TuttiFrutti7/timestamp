@@ -21,3 +21,4 @@ class SearchController extends Controller
         return view('search.index', compact('query', 'users', 'communities'));
     }
 }
+?>
