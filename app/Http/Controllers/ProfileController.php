@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
@@ -77,5 +78,15 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    /**
+     * Display the user's profile.
+     */
+    public function show(User $user)
+    {
+        // Eager load followers and following for efficiency
+        $user->load('followers', 'following');
+        return view('profile.show', compact('user'));
     }
 }

@@ -12,7 +12,9 @@
             <h2 class="text-xl font-semibold mb-2">Users</h2>
             @forelse($users as $user)
                 <div class="flex items-center justify-between p-2 border-b">
-                    <span>{{ $user->username }}</span>
+                    <a href="{{ route('users.show', $user) }}" class="text-blue-600 hover:underline">
+                        {{ $user->username }}
+                    </a>
                     @auth
                         @if(auth()->user()->id !== $user->id)
                             @if(auth()->user()->following->contains($user->id))
