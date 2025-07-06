@@ -1,9 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    <h1>Posta Skats</h1>
+    <h1 class="text-x1 font-bold mb-5">{{ $post->title }}</h1>
 
-    <p>{{ $post->content }}</p>
+    <p>{{ $post->description }}</p>
 
     @foreach ($post->mediaFiles as $media)
         @if ($media->type === 'picture')
@@ -39,7 +39,11 @@
         <div x-data="commentSection({{ $post->id }}, '{{ route('posts.comments', $post) }}')">
             <form @submit.prevent="submitNewComment">
                 <textarea x-model="newComment" class="w-full border p-2 rounded"></textarea>
-                <button type="submit" class="bg-blue-500 text-white px-3 py-1 mt-2 rounded">Post</button>
+                <button type="submit"
+                    class="bg-blue-500 text-white px-3 py-1 mt-2 rounded"
+                    :disabled="loading">
+                Post
+                </button>
             </form>
 
             <div id="comments-list">
@@ -63,12 +67,64 @@
         </div>
 
         <script>
+            function commentEdit(id, content, createdAt = null, updatedAt = null) {
+                return {
+                    editing: false,
+                    editedContent: content,
+                    originalContent: content,
+                    wasEdited: updatedAt && createdAt ? updatedAt !== createdAt : false,
+                    async submitEdit() {
+                        const response = await fetch(`/comments/${id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ content: this.editedContent })
+                        });
+                        if (response.ok) {
+                            const data = await response.json();
+                            this.editing = false;
+                            this.editedContent = data.content;
+                            this.wasEdited = data.wasEdited;
+                        } else {
+                            alert('Failed to update comment');
+                        }
+                    },
+                    cancelEdit() {
+                        this.editedContent = this.originalContent;
+                        this.editing = false;
+                    },
+                    deleteComment() {
+                        if (!confirm('Delete this comment?')) return;
+                        fetch(`/comments/${id}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                                'Accept': 'application/json'
+                            }
+                        }).then(response => {
+                            if (response.ok) {
+                                document.getElementById(`comment-${id}`).remove();
+                            } else {
+                                alert('Failed to delete comment');
+                            }
+                        });
+                    }
+                }
+            }
+
             document.addEventListener('alpine:init', () => {
                 Alpine.data('commentSection', (postId, baseUrl) => ({
                     newComment: '',
+                    loading: false,
                     nextPage: baseUrl + '?page=2',
 
                     async submitNewComment() {
+                        if (this.loading) return;
+                        this.loading = true;
+
                         const response = await fetch(`/posts/${postId}/comments`, {
                             method: 'POST',
                             headers: {
@@ -81,12 +137,19 @@
 
                         if (response.ok) {
                             const data = await response.json();
-                            document.getElementById('comments-list').insertAdjacentHTML('afterbegin', data.html);
-                            Alpine.initTree(document.getElementById('comments-list'));
+                            const commentList = document.getElementById('comments-list');
+
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = data.html.trim();
+                            const newCommentElem = tempDiv.firstElementChild;
+
+                            commentList.insertBefore(newCommentElem, commentList.firstChild);
+
+                            Alpine.initTree(newCommentElem);
+
                             this.newComment = '';
-                        } else {
-                            alert('Failed to post comment');
                         }
+                        this.loading = false;
                     },
 
 
@@ -101,10 +164,8 @@
 
                         if (response.ok) {
                             const data = await response.json();
-                            document.getElementById('comments-list').insertAdjacentHTML('afterbegin', data.html);
+                            document.getElementById('comments-list').insertAdjacentHTML('beforeend', data.html);
                             this.nextPage = data.nextPage;
-                        } else {
-                            alert('Failed to load more comments');
                         }
                     }
                 }));

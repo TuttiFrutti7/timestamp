@@ -84,7 +84,12 @@ class CommentController extends Controller
         $comment->update($validated);
 
         if ($request->expectsJson()) {
-            return response()->json(['status' => 'success', 'message' => 'Comment updated!']);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Comment updated!',
+                'content' => $comment->content,
+                'wasEdited' => $comment->created_at != $comment->updated_at,
+            ]);
         }
 
         return redirect()->route('posts.show', $comment->post_id)->with('success', 'Comment updated!');

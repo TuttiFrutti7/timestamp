@@ -35,8 +35,12 @@
                         }
                     @endphp
                     @if(!is_null($remaining))
-                        <span class="text-yellow-300 font-bold ml-4">
-                            Time left today: {{ floor($remaining) }} min
+                        @php
+                            $remainingSeconds = round($remaining * 60);
+                        @endphp
+                        <span class="text-yellow-300 font-bold ml-4"
+                        id="timer-remaining" data-seconds="{{ $remainingSeconds }}">
+                            Time left today: {{ $remainingSeconds }} sec
                         </span>
                     @endif
                 @endauth
@@ -44,9 +48,9 @@
             <div class="flex items-center space-x-4 ml-auto">
                 @auth
                     <span class="text-gray-300">
-    Logged in as
-    <span class="font-bold text-yellow-300">{{ auth()->user()->username }}</span>
-</span>
+                        Logged in as
+                        <span class="font-bold text-yellow-300">{{ auth()->user()->username }}</span>
+                    </span>
                     <a href="{{ route('logout') }}"
                        onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
                        class="text-red-400 hover:text-red-600">Logout</a>
@@ -71,55 +75,6 @@
     </footer>
 
     <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('commentEdit', (id, originalContent) => ({
-                editing: false,
-                originalContent: originalContent,
-                editedContent: originalContent,
-
-                async submitEdit() {
-                    const response = await fetch(`/comments/${id}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ content: this.editedContent })
-                    });
-
-                    if (response.ok) {
-                        this.editing = false;
-                        this.originalContent = this.editedContent;
-                    } else {
-                        alert('Failed to update comment');
-                    }
-                },
-
-                cancelEdit() {
-                    this.editedContent = this.originalContent;
-                    this.editing = false;
-                },
-
-                deleteComment() {
-                    if (!confirm('Delete this comment?')) return;
-
-                    fetch(`/comments/${id}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                            'Accept': 'application/json'
-                        }
-                    }).then(response => {
-                        if (response.ok) {
-                            document.getElementById(`comment-${id}`).remove();
-                        } else {
-                            alert('Failed to delete comment');
-                        }
-                    });
-                }
-            }))
-        });
         // komentāru izvade sekundēs kad paliek mazāk par 60 sekundēm
         document.addEventListener('DOMContentLoaded', function () {
             const timerElem = document.getElementById('timer-remaining');
