@@ -85,8 +85,9 @@ Ensure you have the following installed:
 
 Local Development
 
-    ```bash
-    php artisan serve
+   ```bash
+   php artisan serve
+   ```
 
 Visit http://localhost:8000 in your browser.
 
@@ -94,9 +95,10 @@ Visit http://localhost:8000 in your browser.
 
  - Ensure storage/ and bootstrap/cache/ directories are writable by the web server:
 
-       ```bash
-       sudo chown -R www-data:www-data storage bootstrap/cache
-        sudo chmod -R 775 storage bootstrap/cache
+   ```bash
+   sudo chown -R www-data:www-data storage bootstrap/cache
+   sudo chmod -R 775 storage bootstrap/cache
+   ```
 
  - Log files: storage/logs/laravel.log
 
