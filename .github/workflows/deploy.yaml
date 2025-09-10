@@ -19,6 +19,7 @@ jobs:
           host: timestamp.lat
           username: edvards
           key: ${{ secrets.DEPLOY_KEY }}
+          port: 69
           script: |
             cd /var/www/social-media-timer
             git fetch origin main
