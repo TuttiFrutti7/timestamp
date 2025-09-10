@@ -11,7 +11,7 @@
             </div>
         @endif
         <h2 class="text-2xl font-bold">{{ $user->name }}</h2>
-        <div class="text-gray-500 mb-4">@{{ $user->username }}</div>
+        <div class="text-gray-500 mb-4">{{ '@' . $user->username }}</div>
         <div class="flex gap-8 mb-4">
             <span class="font-bold">{{ $user->followers()->count() }}</span> Followers
             <span class="font-bold">{{ $user->following()->count() }}</span> Following

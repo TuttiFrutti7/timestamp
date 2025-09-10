@@ -17,7 +17,7 @@ class MediaController extends Controller
     {
         $request->validate([
             'post_id' => 'required|exists:posts,id',
-            'file' => 'required|file|max:20480', // 20MB
+            'file' => 'required|file|max:100000', // 100MB
         ]);
 
         $file = $request->file('file');

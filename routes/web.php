@@ -21,7 +21,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // All other routes: must be authenticated AND within timer limit
-Route::middleware(['auth', 'timer.active'])->group(function () {
+Route::middleware(['auth', 'timer.active', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->middleware(['verified'])->name('dashboard');

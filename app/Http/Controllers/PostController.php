@@ -41,7 +41,7 @@ class PostController extends Controller
             'description' => 'nullable|string',
             'community_id' => 'nullable|exists:communities,id',
             'visibility' => 'required|in:public,community,private',
-            'files.*' => 'file|max:20480|mimetypes:image/jpeg,image/png,image/webp,video/mp4,audio/mpeg,audio/wav',
+            'files.*' => 'file|max:100000|mimetypes:image/jpeg,image/png,image/webp,video/mp4,audio/mpeg,audio/wav',
         ]);
 
         $post = new Post($validated);
